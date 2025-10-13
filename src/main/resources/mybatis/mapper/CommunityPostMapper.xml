@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.free.community.dao.CommunityPostDAO">
+
+  <resultMap id="PostMap" type="com.study.free.community.vo.CommunityPostVO">
+    <result column="POST_ID"    property="postId"    jdbcType="DECIMAL"/>
+    <result column="AUTHOR_ID"  property="authorId"/>
+    <result column="CATEGORY"   property="category"/>
+    <result column="TITLE"      property="title"/>
+    <result column="CONTENT"    property="content"   jdbcType="CLOB"/>
+    <result column="VIEW_CNT"   property="viewCnt"/>
+    <result column="DEL_YN"     property="delYn"/>
+    <result column="CREATED_AT" property="createdAt"/>
+    <result column="UPDATED_AT" property="updatedAt"/>
+    <result column="AUTHOR_PROFILE_IMG" property="authorProfileImg"/>
+  </resultMap>
+
+	<!-- 목록: 삭제글 제외 -->
+<select id="selectList" resultMap="PostMap">
+  SELECT
+    cp.POST_ID, cp.AUTHOR_ID, cp.CATEGORY, cp.TITLE, cp.CONTENT,
+    cp.VIEW_CNT, cp.DEL_YN, cp.CREATED_AT, cp.UPDATED_AT,
+    m.PROFILE_IMG AS AUTHOR_PROFILE_IMG
+  FROM COMMUNITY_POST cp
+  JOIN MEMBERS m ON m.MEM_ID = cp.AUTHOR_ID
+  WHERE cp.DEL_YN = 'N'
+  ORDER BY cp.CREATED_AT DESC
+</select>
+
+	<!-- 단건 -->
+  <select id="selectOne" parameterType="java.math.BigDecimal" resultMap="PostMap">
+    SELECT POST_ID, AUTHOR_ID, CATEGORY, TITLE, CONTENT, VIEW_CNT, DEL_YN, CREATED_AT, UPDATED_AT
+    FROM COMMUNITY_POST
+    WHERE POST_ID = #{postId} AND DEL_YN = 'N'
+  </select>
+
+	<!-- 조회수 +1 -->
+  <update id="increaseView" parameterType="java.math.BigDecimal">
+    UPDATE COMMUNITY_POST
+       SET VIEW_CNT = VIEW_CNT + 1,
+           UPDATED_AT = SYSTIMESTAMP
+     WHERE POST_ID = #{postId}
+  </update>
+  
+  	<!-- 글쓰기 -->
+	<insert id="insert"
+        parameterType="com.study.free.community.vo.CommunityPostVO"
+        useGeneratedKeys="true"
+        keyProperty="postId"
+        keyColumn="POST_ID">
+  INSERT INTO COMMUNITY_POST (AUTHOR_ID, CATEGORY, TITLE, CONTENT)
+  VALUES (#{authorId,jdbcType=VARCHAR},
+          #{category,jdbcType=VARCHAR},
+          #{title,jdbcType=VARCHAR},
+          #{content,jdbcType=CLOB})
+</insert>
+
+  <!-- 수정 -->
+  <update id="update">
+    UPDATE COMMUNITY_POST
+       SET TITLE = #{param2},
+           CONTENT = #{param3},
+           CATEGORY = #{param4},
+           UPDATED_AT = SYSTIMESTAMP
+     WHERE POST_ID = #{param1}
+       AND DEL_YN = 'N'
+  </update>
+
+  <!-- 소프트 삭제 -->
+  <update id="softDelete" parameterType="java.math.BigDecimal">
+    UPDATE COMMUNITY_POST
+       SET DEL_YN = 'Y',
+           UPDATED_AT = SYSTIMESTAMP
+     WHERE POST_ID = #{postId}
+  </update>
+
+</mapper>

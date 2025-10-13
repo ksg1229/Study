@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.free.room.dao.RoomDAO">
+
+  <resultMap id="RoomMap" type="com.study.free.room.vo.RoomVO">
+    <id     column="ROOM_ID"        property="roomId"/>
+    <result column="TITLE"          property="title"/>
+    <result column="HOST_MEMBER_ID" property="hostMemberId"/>
+    <result column="STATUS"         property="status"/>
+    <result column="MAX_MEMBER"     property="maxMember"/>
+    <result column="DEL_YN"         property="delYn"/>
+    <result column="CREATED_AT"     property="createdAt"/>
+    <!-- 썸네일용 -->
+    <result column="YT_ID"          property="ytId"/>
+  </resultMap>
+  
+  <!-- 통합 생성 (CALLABLE, OUT 파라미터 명시 / CDATA 없음) -->
+  <insert id="createAll"
+          parameterType="com.study.free.room.vo.RoomCreateAggVO"
+          statementType="CALLABLE">
+    DECLARE
+      v_room_id NUMBER(19);
+    BEGIN
+      INSERT INTO STUDY_ROOM (TITLE, HOST_MEMBER_ID, STATUS, MAX_MEMBER)
+      VALUES (#{title}, #{hostMemberId}, 'OPEN', #{maxMember})
+      RETURNING ROOM_ID INTO v_room_id;
+
+      INSERT INTO ROOM_MEMBER (ROOM_ID, MEMBER_ID, ROLE_IN_ROOM)
+      VALUES (v_room_id, #{hostMemberId}, 'HOST');
+
+      INSERT INTO PLAYBACK_STATE (ROOM_ID, YT_ID, POSITION_SEC, IS_PAUSED, UPDATED_BY)
+      VALUES (v_room_id, #{ytId}, 0, 'Y', #{hostMemberId});
+
+      /* OUT 파라미터로 roomId를 돌려준다 */
+      #{roomId, jdbcType=NUMERIC, mode=OUT} := v_room_id;
+    END;
+  </insert>
+
+  <select id="findById" parameterType="int" resultMap="RoomMap">
+    SELECT sr.ROOM_ID, sr.TITLE, sr.HOST_MEMBER_ID, sr.STATUS, sr.MAX_MEMBER, sr.DEL_YN, sr.CREATED_AT,
+           ps.YT_ID
+    FROM STUDY_ROOM sr
+    LEFT JOIN PLAYBACK_STATE ps ON ps.ROOM_ID = sr.ROOM_ID
+    WHERE sr.ROOM_ID = #{roomId} AND sr.DEL_YN = 'N'
+  </select>
+
+  <select id="findByTitle" parameterType="string" resultMap="RoomMap">
+    SELECT sr.ROOM_ID, sr.TITLE, sr.HOST_MEMBER_ID, sr.STATUS, sr.MAX_MEMBER, sr.DEL_YN, sr.CREATED_AT,
+           ps.YT_ID
+    FROM STUDY_ROOM sr
+    LEFT JOIN PLAYBACK_STATE ps ON ps.ROOM_ID = sr.ROOM_ID
+    WHERE sr.TITLE = #{title} AND sr.DEL_YN = 'N'
+  </select>
+
+  <select id="selectList" resultMap="RoomMap">
+    SELECT sr.ROOM_ID, sr.TITLE, sr.HOST_MEMBER_ID, sr.STATUS, sr.MAX_MEMBER, sr.DEL_YN, 
+    TO_CHAR(sr.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT ,ps.YT_ID
+    FROM STUDY_ROOM sr
+    LEFT JOIN PLAYBACK_STATE ps ON ps.ROOM_ID = sr.ROOM_ID
+    WHERE sr.DEL_YN = 'N'
+    ORDER BY sr.CREATED_AT DESC
+  </select>
+  
+  <update id="updateStatus" parameterType="com.study.free.room.vo.RoomVO">
+  UPDATE STUDY_ROOM
+     SET STATUS = #{status}
+   WHERE ROOM_ID = #{roomId}
+</update>
+
+<select id="findHostMemberId" parameterType="int" resultType="string">
+  SELECT HOST_MEMBER_ID
+    FROM STUDY_ROOM
+   WHERE ROOM_ID = #{roomId}
+</select>
+
+<delete id="delete" parameterType="com.study.free.room.vo.RoomVO">
+  DELETE FROM ROOM_MEMBER
+   WHERE ROOM_ID = #{roomId}
+     AND MEMBER_ID = #{memberId} <!-- VO 필드명을 맞춰주면 됩니다 -->
+</delete>
+
+<select id="selectByHost" parameterType="string" resultMap="RoomMap">
+  SELECT sr.ROOM_ID, sr.TITLE, sr.HOST_MEMBER_ID, sr.STATUS, sr.MAX_MEMBER, sr.DEL_YN,
+         sr.CREATED_AT, ps.YT_ID
+    FROM STUDY_ROOM sr
+    LEFT JOIN PLAYBACK_STATE ps ON ps.ROOM_ID = sr.ROOM_ID
+   WHERE sr.DEL_YN = 'N'
+     AND sr.HOST_MEMBER_ID = #{hostMemberId}
+   ORDER BY sr.CREATED_AT DESC
+</select>
+
+<!-- 제목 중복 개수 -->
+<select id="countByTitle" parameterType="string" resultType="int">
+  SELECT COUNT(*) 
+  FROM STUDY_ROOM
+  WHERE DEL_YN = 'N'
+    AND TITLE = #{title}
+</select>
+
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.free.community.dao.PostCommentDAO">
+
+  <resultMap id="CommentMap" type="com.study.free.community.vo.PostCommentVO">
+    <result column="COMMENT_ID"  property="commentId"  jdbcType="DECIMAL"/>
+    <result column="POST_ID"     property="postId"     jdbcType="DECIMAL"/>
+    <result column="AUTHOR_ID"   property="authorId"/>
+    <result column="PARENT_ID"   property="parentId"   jdbcType="DECIMAL"/>
+    <result column="CONTENT"     property="content"    jdbcType="CLOB"/>
+    <result column="DEL_YN"      property="delYn"/>
+    <result column="CREATED_AT"  property="createdAt"/>
+    <result column="UPDATED_AT"  property="updatedAt"/>
+  </resultMap>
+
+  <select id="countByPostId" parameterType="java.math.BigDecimal" resultType="int">
+    SELECT COUNT(*)
+      FROM POST_COMMENT
+     WHERE POST_ID = #{postId}
+       AND DEL_YN = 'N'
+  </select>
+
+  <!-- 🔹 단건 조회(삭제 권한 비교용) -->
+  <select id="selectOne" parameterType="java.math.BigDecimal" resultMap="CommentMap">
+    SELECT COMMENT_ID, POST_ID, AUTHOR_ID, PARENT_ID, CONTENT, DEL_YN, CREATED_AT, UPDATED_AT
+      FROM POST_COMMENT
+     WHERE COMMENT_ID = #{commentId}
+  </select>
+
+  <!-- 🔹 11g ROWNUM 페이징: 정렬(스레드 순) 후 ROW_NUMBER 매겨서 범위 자르기 -->
+  <select id="selectByPostIdPaged"
+          parameterType="com.study.free.community.vo.CommentPageQueryVO"
+          resultMap="CommentMap">
+    SELECT *
+      FROM (
+        SELECT t.*, ROW_NUMBER() OVER (
+                 ORDER BY NVL(PARENT_ID, COMMENT_ID),
+                          CASE WHEN PARENT_ID IS NULL THEN 0 ELSE 1 END,
+                          CREATED_AT
+               ) AS RN
+          FROM POST_COMMENT t
+         WHERE t.POST_ID = #{postId}
+           AND t.DEL_YN = 'N'
+      )
+     WHERE RN BETWEEN #{startRow} AND #{endRow}
+     ORDER BY RN
+  </select>
+
+  <insert id="insert" parameterType="com.study.free.community.vo.CreateCommentVO">
+    INSERT INTO POST_COMMENT (POST_ID, AUTHOR_ID, PARENT_ID, CONTENT)
+    VALUES (#{postId}, #{authorId}, #{parentId}, #{content})
+  </insert>
+
+  <update id="softDelete" parameterType="java.math.BigDecimal">
+    UPDATE POST_COMMENT
+       SET DEL_YN = 'Y',
+           UPDATED_AT = SYSTIMESTAMP
+     WHERE COMMENT_ID = #{commentId}
+  </update>
+
+</mapper>

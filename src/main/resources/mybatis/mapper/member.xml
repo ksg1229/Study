@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.free.member.dao.IMemberDAO">
+	<insert id="registMember" parameterType="MemberVO">
+		
+		INSERT INTO members(mem_id, mem_pw, mem_nm, email)
+		VALUES (#{memId}, #{memPw}, #{memNm}, #{email})
+	
+	</insert>
+	
+	<select id="loginMember" parameterType="MemberVO" resultType="MemberVO">
+				SELECT mem_id
+				     , mem_pw
+					 , mem_nm
+				     , EMAIL
+					 , profile_img
+					 , REG_DATE
+				FROM members
+				WHERE del_yn = 'N'
+				AND   mem_id = #{memId}	
+	</select>
+	
+	<update id="profileUpload" parameterType="MemberVO">
+			UPDATE members
+			SET profile_img = #{profileImg}
+			WHERE mem_id = #{memId}	
+	</update>
+</mapper>

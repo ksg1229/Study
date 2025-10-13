@@ -1,0 +1,585 @@
+/* ================================
+   Studyssong - Unified Stylesheet
+   (Light/Dark + App/Mypage/Community/Session)
+   ================================ */
+
+/* ========== 0) Variables ========== */
+/* Light (default) */
+:root{
+  --bg:#f6f7fb; --card:#fff; --text:#101828; --muted:#667085; --line:#e5e7eb;
+  --accent:#6366f1; --accent-weak:#eef2ff; --success:#22c55e; --danger:#ef4444;
+  --chip:#f1f5f9; --shadow:0 6px 20px rgba(16,24,40,.06);
+  --side-w:260px; --side-w-collapsed:64px;
+}
+
+/* Dark */
+body.theme-dark{
+  --bg:#0b1020; --card:#11193a; --text:#eef1f6; --muted:#a8b2d1; --line:#26306a;
+  --accent:#5865f2; --accent-weak:#2b336d; --success:#22c55e; --danger:#ef4444;
+  --chip:#161f45; --shadow:0 8px 24px rgba(0,0,0,.35);
+}
+
+/* ========== 1) Base ========== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:Pretendard,system-ui,Apple SD Gothic Neo,Segoe UI,sans-serif;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.hidden{display:none!important}
+.muted{color:var(--muted)!important}
+.right{text-align:right}
+.container{max-width:1280px;margin:0 auto}
+
+/* Smooth theme transitions */
+:root, body, .card, .topbar, .side, .main, .chat, .player, .whiteboard,
+.post-view, .comments, .list, .composer-row, .feed-post, .community-write-page .write-wrap {
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+
+/* ========== 2) App Shell (Header + Sidebar + Main) ========== */
+.app{
+  display:grid; height:100vh;
+  grid-template-columns: var(--side-w) 1fr;
+  grid-template-rows:64px 1fr;
+  grid-template-areas:"aside header" "aside main";
+  transition:grid-template-columns .25s ease;
+}
+.app .side{
+  grid-area:aside; height:100%; padding:16px; border:0; border-right:1px solid var(--line);
+}
+.app .topbar{ grid-area:header; height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; background:var(--card); border-bottom:1px solid var(--line); border-left:1px solid var(--line); }
+.app .main{grid-area:main; overflow:auto; background:var(--bg); padding:20px}
+
+/* Sidebar collapsed */
+.app.side-collapsed{ grid-template-columns: var(--side-w-collapsed) 1fr; }
+.app.side-collapsed .side{ width: var(--side-w-collapsed); }
+.app.side-collapsed .side-title{ display:none; }
+.app.side-collapsed .side-head{ justify-content:center; }
+.app.side-collapsed .side-menu li a{
+  padding:0 12px; height:40px; white-space:nowrap; overflow:hidden;
+  display:flex; justify-content:center; align-items:center;
+}
+.app.side-collapsed .side-menu li a:hover{ background: var(--accent-weak); }
+.app.side-collapsed .ic{ width:32px; height:32px; flex:0 0 32px; }
+
+.topbar .logo{font-weight:700}
+.topbar .search input{
+  width:420px; max-width:60vw; height:38px; border:1px solid var(--line);
+  border-radius:10px; padding:0 12px; background:transparent; color:var(--text); outline:none;
+}
+.avatar{width:28px;height:28px;border-radius:50%;object-fit:cover}
+.avatar.lg{width:40px;height:40px}
+
+.side-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.side-logo{background:var(--accent);color:#fff;border-radius:10px;padding:6px 8px;font-weight:700; cursor:pointer}
+.side-title{font-weight:700}
+.side-menu{list-style:none;margin:0;padding:8px 0}
+.side-menu li{margin:6px 0}
+.side-menu a{display:block;padding:10px 12px;border-radius:10px;color:var(--text)}
+.side-menu li.active a,.side-menu a:hover{background:var(--accent-weak);color:var(--accent)}
+.side-footer{display:flex;gap:12px;align-items:center;padding-top:10px;border-top:1px dashed var(--line)}
+.logout{color:var(--muted);font-size:13px}
+
+.side .ic{ display:none; }
+.side .text{ display:inline; }
+.side .ic, .side .ic * { fill: currentColor; stroke: currentColor; }
+.app.side-collapsed .side .ic{ display:block; }
+.app.side-collapsed .side .text{ display:none; }
+.ic{ width:32px; height:32px; flex:0 0 32px; }
+
+.side-menu a{ color: var(--text); }
+.side-menu li.active a,
+.side-menu a:hover{ color: var(--accent); background: var(--accent-weak); }
+
+/* ========== 3) Layout Helpers / Cards ========== */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card .inner{padding:16px 18px}
+.title{font-weight:700;margin:0 0 6px}
+.section{display:grid;gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:1060px){.grid-4{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.grid-3,.grid-4{grid-template-columns:1fr}}
+
+.wrap{max-width:960px;margin:32px auto;padding:0 16px}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.desc{font-size:13px;line-height:1.5;min-height:38px}
+.row{display:flex;justify-content:space-between;align-items:center}
+
+/* ========== 4) Buttons ========== */
+.btn{
+  display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 14px;
+  border-radius:10px; border:1px solid var(--line); background:var(--card);
+  color:var(--text); font-weight:600; cursor:pointer; text-decoration:none;
+}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.sm{height:34px;padding:0 12px;border-radius:8px}
+
+/* Theme toggle button */
+.theme-toggle{gap:6px;height:36px;padding:0 12px}
+.theme-toggle .label{font-size:13px;color:var(--muted)}
+
+/* ========== 5) Hero (Top Summary) ========== */
+.hero{
+  background:linear-gradient(135deg,rgba(246,248,255,.9),var(--card));
+  border:1px solid var(--line); border-radius:16px; padding:22px 20px;
+  display:grid; grid-template-columns:1.2fr 1fr; gap:16px
+}
+.hero h1{margin:0 0 8px;font-size:26px}
+.hero .cta{display:flex;gap:10px;margin-top:14px}
+.hero-card{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:14px}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--chip);border-radius:12px;padding:12px}
+.stat .num{font-size:18px;font-weight:700;margin-top:2px}
+.course .bar{height:8px;background:var(--accent-weak);border-radius:8px;margin-top:10px;overflow:hidden}
+.course .bar>i{display:block;height:100%;background:var(--accent);width:70%}
+
+/* ========== 6) Lists / Tables / Badges ========== */
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.list .row{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px dashed var(--line)}
+.list .row:last-child{border-bottom:none}
+.badge{padding:6px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:#f8fafc}
+.badge.blue{background:#eef2ff;color:#4f46e5;border-color:#c7d2fe}
+.badge.gray{background:#f1f5f9;color:#475569;border-color:#e2e8f0}
+.badge.red{background:#fee2e2;color:#b91c1c;border-color:#fecaca}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left}
+.table th{font-size:13px;color:var(--muted);font-weight:600}
+
+/* ========== 7) MyPage Widgets ========== */
+.checklist li{display:flex;gap:8px;align-items:flex-start;margin:10px 0}
+.checklist input{margin-top:3px}
+.session-list .item{padding:10px 0;border-bottom:1px dashed var(--line)}
+.session-list .item:last-child{border-bottom:none}
+
+/* Mini calendar */
+.cal{display:grid;grid-template-rows:auto 1fr;gap:10px}
+.cal table{width:100%;border-collapse:collapse;text-align:center}
+.cal th,.cal td{padding:8px;border-radius:8px}
+.cal td.is-today{background:var(--accent-weak);color:var(--accent);font-weight:600}
+.cal td.has-study{outline:2px solid var(--accent-weak)}
+
+/* ========== 8) Study Session (Player/Whiteboard/Chat) ========== */
+/* 공용 */
+.session{display:grid;grid-template-columns:2fr 360px;gap:16px;align-items:start}
+@media (max-width:1100px){.session{grid-template-columns:1fr}}
+
+.player{background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.player-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 12px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line)
+}
+.player-tools{display:flex;gap:8px}
+.tool-btn{height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer}
+.tool-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.whiteboard{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.whiteboard .toolbar{position:absolute;top:10px;left:10px;display:flex;gap:8px;z-index:5}
+.whiteboard canvas{display:block;width:100%;height:520px;background:transparent}
+.whiteboard .layer{position:absolute;inset:0;pointer-events:none}
+
+.chat{background:var(--card);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;height:640px}
+.chat-header{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700}
+.chat-body{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.msg{display:flex;gap:8px;align-items:flex-end}
+.msg.me{flex-direction:row-reverse}
+.msg .bubble{max-width:70%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--chip)}
+.msg.me .bubble{background:var(--accent);border-color:var(--accent);color:#fff}
+.msg .time{font-size:11px;color:var(--muted)}
+.chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.chat-input input[type="text"]{flex:1;height:38px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--text);padding:0 10px}
+.chat-input .send{height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+
+/* ===== 8B) Session Page Overrides (라이트/다크 공통 변수화) ===== */
+.session-page > .app > .container,
+.app > .container:has(#playerWrap){
+  display:grid; grid-template-columns:1fr 380px; gap:16px;
+  max-width:1220px; margin:16px auto; padding:0 12px;
+}
+.app > .container:has(#playerWrap) .card{
+  background: var(--card); border:1px solid var(--line); border-radius:16px; padding:12px;
+}
+.session-page header{
+  height:60px;display:flex;justify-content:space-between;align-items:center;
+  padding:0 16px;background:var(--card);border-bottom:1px solid var(--line)
+}
+
+/* Player */
+.playerWrap{
+  position:relative;aspect-ratio:16/9;background:#000;border:1px solid var(--line);
+  border-radius:12px;overflow:hidden;display:grid;place-items:center;margin-bottom:10px
+}
+.playerWrap iframe{position:absolute; inset:0; width:100%; height:100%; z-index:1;}
+#startBtn{
+  position:absolute;bottom:12px;right:12px;z-index:10;
+  background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 12px
+}
+
+/* Controls */
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.controls input,.controls button{
+  background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px
+}
+body.member .controls .hostOnly{display:none}
+
+/* Whiteboard over Player */
+#wbToolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#wbToolbar button[disabled], #wbToolbar input[disabled]{opacity:.5;cursor:not-allowed}
+.memberOnly{display:none} body.member .memberOnly{display:inline-block}
+#wbCanvas{position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none;}
+#wbCanvas.hidden{display:none;}
+
+/* Chat (right panel) */
+.scrollBox{
+  height:240px;overflow:auto;border:1px solid var(--line);
+  border-radius:10px;padding:8px;background:var(--card)
+}
+.chatList{display:flex;flex-direction:column;gap:6px}
+.chatItem{font-size:14px;display:flex;flex-direction:column;max-width:80%}
+.chatItem.other{align-self:flex-start;text-align:left;margin-right:auto;background:var(--chip);
+  border-radius:12px 12px 12px 0;padding:6px 10px;color:var(--text);border:1px solid var(--line)}
+.chatItem.mine {align-self:flex-end;text-align:right;margin-left:auto;background:var(--accent);
+  border-radius:12px 12px 0 12px;padding:6px 10px;color:#fff;border:1px solid var(--accent)}
+.chatItem .meta{opacity:.75;font-size:12px;margin-bottom:2px}
+.chatItem .imgWrap{margin-top:4px}
+.chatItem .imgWrap img{max-width:240px;max-height:240px;display:block;border-radius:10px;border:1px solid var(--line)}
+
+.chatForm{display:flex;gap:8px;margin-top:8px;align-items:center}
+.chatForm input[type="text"]{flex:1;background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px}
+.chatForm button{background:var(--accent);border:1px solid var(--accent);color:#fff;border-radius:8px;padding:8px 12px}
+#chatPlus{width:36px;height:36px;border-radius:8px;background:var(--chip);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--text)}
+#chatPlus:disabled{opacity:.5;cursor:not-allowed}
+
+.permBtns{display:inline-flex;gap:6px;margin-top:6px}
+.permBtns button{background:var(--chip);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:4px 8px;font-size:12px}
+
+/* Notes */
+.memoList{display:flex;flex-direction:column;gap:6px}
+.memoItem{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:6px 8px;color:var(--text)}
+.memoItem .meta{opacity:.75;font-size:12px;margin-bottom:2px}
+
+/* ========== 9) Animations ========== */
+.fade-in{animation:fade .28s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ========== 10) Auth (Login / Register) ========== */
+.auth-page .container{display:flex;justify-content:center;align-items:center;min-height:100vh}
+.auth-page .form-box{
+  background:var(--card); padding:30px 25px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,0.08);
+  width:100%; max-width:400px; border:1px solid var(--line);
+}
+.auth-page .form-box h2{text-align:center;margin-bottom:24px;color:var(--text)}
+.auth-page form{display:flex;flex-direction:column;gap:14px}
+.auth-page input[type="text"],
+.auth-page input[type="email"],
+.auth-page input[type="password"]{
+  padding:12px 14px; border:1px solid var(--line); border-radius:8px; font-size:.95rem; background:transparent; color:var(--text);
+}
+.auth-page .btn-submit{background:var(--accent);color:#fff;padding:12px;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
+
+/* ========== 11) Study Create Page ========== */
+.study-create-page .create-wrap{display:flex;justify-content:center;padding:48px 16px 72px}
+.study-create-page .form-card{
+  width:100%; max-width:820px; background:var(--card); border-radius:14px;
+  box-shadow:0 10px 24px rgba(0,0,0,.08); padding:28px 24px; border:1px solid var(--line);
+}
+.study-create-page .form-card h2{margin:0 0 6px;color:var(--text);text-align:left}
+.study-create-page .form-card .subtitle{margin:0 0 18px;color:var(--muted);font-size:.95rem}
+.study-create-page .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.study-create-page label{font-weight:600;color:var(--text)}
+.study-create-page .req{color:#e11d48}
+.study-create-page input[type="text"],
+.study-create-page input[type="url"],
+.study-create-page input[type="number"],
+.study-create-page input[type="datetime-local"],
+.study-create-page textarea{
+  padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:.95rem; transition:border .2s, box-shadow .2s; background:transparent; color:var(--text);
+}
+.study-create-page textarea{resize:vertical}
+.study-create-page input:focus,.study-create-page textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(88,101,242,.15); outline:none}
+.study-create-page .muted{color:var(--muted);font-size:.85rem}
+.study-create-page .right{text-align:right}
+.study-create-page .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px}
+@media (max-width:720px){.study-create-page .grid-2{grid-template-columns:1fr}}
+.study-create-page .checkline{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;user-select:none}
+.study-create-page .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+.study-create-page .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:10px;font-weight:700;border:none;cursor:pointer;text-decoration:none}
+.study-create-page .btn.primary{background:var(--accent);color:#fff}
+.study-create-page .btn.primary:hover{filter:brightness(0.95)}
+.study-create-page .btn.ghost{background:var(--accent-weak);color:#334155}
+.study-create-page .btn.ghost:hover{filter:brightness(0.97)}
+
+.thumb-card{
+  display:none;                 /* ID가 추출되기 전까지 숨김 */
+  margin-top:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--card);
+  padding:10px;
+}
+.thumb-card img{
+  width:100%;
+  aspect-ratio:16 / 9;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid var(--line);
+}
+.thumb-card .thumb-meta{
+  margin-top:8px;
+  font-size:12.5px;
+  color:var(--muted);
+}
+
+/* === Create: 폼 간격/레이블 정돈 === */
+.study-create-page .form-card{
+  padding:28px 26px;            /* 살짝 좌우 여백 늘림 */
+}
+.study-create-page .form-row{
+  gap:6px;
+  margin-bottom:14px;           /* 전체 높이 살짝 컴팩트하게 */
+}
+.study-create-page label{
+  font-weight:700;              /* 레이블 좀 더 선명하게 */
+}
+
+/* 입력값 에러 강조(유효하지 않은 링크일 때 테두리 바뀜과 조화) */
+.study-create-page input[type="url"].error,
+.study-create-page input[type="text"].error{
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(239,68,68,.12);
+}
+
+/* 라이트/다크 모두에서 썸네일 카드가 살짝 떠 보이게 */
+.thumb-card{
+  box-shadow: var(--shadow);
+}
+
+/* ========== 12) Community Feed ========== */
+.feed-wrap{max-width:860px;margin:0 auto;padding:20px}
+.feed-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.feed-top h1{margin:0;font-size:24px}
+
+.composer{margin-bottom:14px}
+.composer-row{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.composer-row input{
+  flex:1;height:42px;border:1px solid var(--line);border-radius:12px;padding:0 14px;background:transparent;color:var(--text);cursor:text
+}
+
+.feed{display:flex;flex-direction:column;gap:14px}
+.feed-post{padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+
+.post-head{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.post-head .who .meta{color:var(--muted);font-size:12px}
+.chip{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--accent-weak);color:var(--accent);font-weight:600}
+
+.post-body .post-title{margin:6px 0 6px;font-size:18px}
+.post-excerpt{margin:0;color:var(--muted)}
+.post-img{margin-top:10px;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow)}
+
+.post-foot{margin-top:10px;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px}
+.post-foot .views{margin-right:auto;color:var(--text);font-weight:600}
+.post-foot .action{border:none;background:transparent;color:var(--muted);cursor:pointer}
+.post-foot .action:hover{color:var(--accent)}
+
+/* Wider feed for community page layout */
+.community-page .feed-wrap{
+  width: clamp(960px, 66vw, 1200px);
+  max-width:1200px; padding:24px 16px;
+}
+.community-page .feed .feed-post,
+.community-page .composer{ width:100% }
+
+@media (max-width:980px){ .community-page .feed-wrap{ width:100%; padding:16px } }
+@media (max-width:720px){
+  .feed-wrap{padding:14px}
+  .post-body .post-title{font-size:16px}
+}
+
+/* ========== 13) Community Write (글쓰기) ========== */
+.community-write-page .write-wrap{
+  width: clamp(680px, 48vw, 920px);
+  margin: 28px auto; padding: 22px 20px;
+  background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+}
+.community-write-page .write-wrap h1{margin:0 0 16px;font-size:22px}
+.community-write-page .form-row{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+.community-write-page .form-row>label{min-width:90px;padding-top:10px;font-weight:600;color:var(--text)}
+.community-write-page .form-row>div{flex:1}
+.community-write-page input[type="text"],
+.community-write-page textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:transparent;
+  color:var(--text);
+  font-size:14px;
+  outline:none;
+}
+/* 셀렉트 */
+.community-write-page select{
+  width:100%; height:42px; padding:0 38px 0 12px;
+  border:1px solid var(--line); border-radius:10px; background:transparent; color:var(--text);
+  font-size:14px; outline:none; appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'><path fill='%23667085' d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat:no-repeat; background-position:right 12px center;
+}
+.community-write-page select:focus,
+.community-write-page input[type="text"]:focus,
+.community-write-page textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(99,102,241,.15);
+}
+.community-write-page textarea{min-height:280px;resize:vertical;line-height:1.6}
+.community-write-page .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.community-write-page .error{color:var(--danger);margin:8px 0 12px;font-weight:600}
+.community-write-page .main{display:flex;justify-content:center;align-items:flex-start}
+
+/* ========== 14) Community Post View + Comments ========== */
+.post-view{
+  background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); margin-bottom:16px
+}
+.pv-head{padding:16px 18px; border-bottom:1px solid var(--line)}
+.pv-title-row{display:flex; align-items:center; gap:10px}
+.pv-title{margin:0; font-size:22px; line-height:1.3}
+.pv-meta{margin-top:8px; display:flex; align-items:center; gap:8px; color:var(--muted); font-size:13px}
+.pv-meta .dot{opacity:.7}
+.pv-meta .spacer{flex:1}
+.pv-action{border:none; background:transparent; color:var(--accent); cursor:pointer; text-decoration:none; padding:0 4px}
+.pv-action.danger{color:var(--danger)}
+.pv-body{padding:18px}
+.pv-text{margin:0; white-space:pre-wrap; line-height:1.7; font-size:15px}
+
+.comments{margin-top:24px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px}
+.comments-title{margin:0 0 12px; font-size:18px}
+.comments-subtitle{margin:18px 0 8px; font-size:16px}
+.comment{padding:14px 0; border-top:1px dashed var(--line)}
+.comment:first-child{border-top:none}
+.comment.reply{margin-left:18px; border-left:2px solid var(--line); padding-left:12px; border-top:none}
+.comment .meta{font-size:12px; color:var(--muted); margin-bottom:6px; display:flex; align-items:center; gap:6px}
+.comment .meta .dot{opacity:.7}
+.comment .body .text{white-space:pre-wrap; margin:0; line-height:1.6; font-size:14px}
+.comment-actions{display:flex; gap:10px; align-items:center; margin-top:6px}
+.comment-actions form{display:inline}
+.comment-actions .link{border:none; background:transparent; color:var(--accent); cursor:pointer; padding:0}
+.comment-actions .link.danger{color:var(--danger)}
+.reply-form{margin-top:8px}
+
+.comment-form textarea{
+  width:100%; min-height:90px; resize:vertical;
+  border:1px solid var(--line); border-radius:10px; background:transparent; color:var(--text);
+  padding:10px 12px; outline:none;
+}
+.comment-form textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.comment-form .row{display:flex; gap:8px; align-items:center; margin-top:8px}
+
+/* ===== Rooms List 페이지 넓게 ===== */
+.rooms-page .wrap{ width: clamp(1100px, 72vw, 1400px); max-width: none; }
+.rooms-page .grid{ grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.rooms-page .empty{ padding: 56px 24px; font-size: 15px; }
+@media (max-width: 1100px){ .rooms-page .wrap{ width: 100%; }}
+
+/* Pagination */
+.pagination{display:flex; gap:6px; margin:16px 0 0}
+.pagination .page{
+  display:inline-block; padding:6px 10px; border:1px solid var(--line); border-radius:8px;
+  text-decoration:none; color:var(--text); background:var(--card);
+}
+.pagination .page:hover{background:#f8fafc}
+body.theme-dark .pagination .page:hover{background:#0f1737}
+.pagination .active{background:var(--accent); color:#fff; border-color:var(--accent)}
+.pagination .disabled{opacity:.5; pointer-events:none}
+
+/* ========== 15) Dark-only polish ========== */
+body.theme-dark .post,
+body.theme-dark .post-view{box-shadow:none}
+body.theme-dark .comment.reply{border-left-color:#32407a}
+body.theme-dark .community-write-page .write-wrap{box-shadow:none}
+body.theme-dark .community-write-page select{
+  background-color:#0f1737; border-color:#32407a; color:#eef1f6;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'><path fill='%23a8b2d1' d='M7 10l5 5 5-5z'/></svg>");
+}
+body.theme-dark .community-write-page select:focus{
+  border-color:#5865f2; box-shadow:0 0 0 3px rgba(88,101,242,.18);
+}
+
+/* ========== 16) Utilities / Legacy ========== */
+.btn.legacy{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:#10173a;color:var(--text)}
+.btn.legacy.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.empty{padding:40px;text-align:center;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
+
+/* 셀렉트 옵션 패널 톤 */
+.community-write-page select option,
+.community-write-page select optgroup { background-color: var(--card); color: var(--text); }
+body.theme-dark .community-write-page select option,
+body.theme-dark .community-write-page select optgroup { background-color:#0f1737; color:#eef1f6; }
+
+/* IE 레거시 */
+.community-write-page select::-ms-expand{ display:none; }
+
+/* === Session: Player wider, keep 16:9 ratio === */
+.session-page > .app > .container,
+.app > .container:has(#playerWrap){
+  grid-template-columns: 1.8fr 400px;   /* 왼쪽(플레이어) 넓힘 */
+  max-width: 1500px;                    /* 전체 폭 확대 */
+  gap: 24px;
+}
+
+/* Player 크기: 16:9 비율 유지 + 옆으로 넓힘 */
+.session-page .playerWrap,
+.app > .container:has(#playerWrap) .playerWrap{
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
+  min-height: 480px;   /* 너무 작아지지 않도록 */
+  max-height: 720px;   /* 너무 길어지지 않도록 */
+}
+
+/* 반응형: 좁은 화면에서는 다시 기본 비율 */
+@media (max-width: 1100px){
+  .session-page > .app > .container,
+  .app > .container:has(#playerWrap){
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+}
+
+  /* 기존 썸네일 */
+  .chatList .imgWrap img{max-width:100%;border-radius:8px;cursor:pointer}
+
+  /* 모달 공통 */
+  .imgModal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999}
+  .imgModal.hidden{display:none}
+  .imgModal__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+  .imgModal__body{position:relative;max-width:96vw;max-height:96vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .imgModal__close{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:0;border-radius:8px;width:36px;height:36px;font-size:22px;line-height:36px;text-align:center;cursor:pointer}
+  .imgModal__toolbar{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;border-radius:10px;padding:6px 10px;display:flex;gap:6px;align-items:center}
+  .imgModal__toolbar button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:6px 10px;cursor:pointer}
+  .imgModal__toolbar span{min-width:52px;text-align:center}
+
+  /* ★ 새로 추가: 스테이지(여기에 transform 적용) */
+  #imgStage{
+    display:inline-block;
+    will-change: transform;
+    transform-origin:center center;
+    cursor:grab;
+    touch-action:none; /* 터치 드래그 충돌 방지 */
+  }
+  #imgStage.grabbing{cursor:grabbing}
+
+  /* 스테이지 안의 이미지: 레이아웃 제약 제거 */
+  #imgStage > img{
+    max-width:none; max-height:none; width:auto; height:auto;
+    user-select:none; -webkit-user-drag:none;
+    display:block;
+  }
+  /* 최종 오버라이드 (확대시 전역 img 규칙 무력화) */
+#imgStage > img{ max-width:none !important; max-height:none !important; }
+#imgStage{ transform-origin:center center; will-change:transform; }
+
+

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.free.sync.dao.RoomStateMapper">
+
+    <select id="find" parameterType="string" resultType="com.study.free.sync.vo.RoomState">
+        SELECT ROOM_ID, VIDEO_ID, POSITION_SEC, PLAYING, HOST_NAME
+        FROM ROOM_STATE
+        WHERE ROOM_ID = #{roomId}
+    </select>
+
+    <insert id="insert" parameterType="com.study.free.sync.vo.RoomState">
+        INSERT INTO ROOM_STATE (ROOM_ID, VIDEO_ID, POSITION_SEC, PLAYING, HOST_NAME)
+        VALUES (#{roomId}, #{videoId}, #{positionSec}, #{playing}, #{hostName})
+    </insert>
+
+    <update id="update" parameterType="com.study.free.sync.vo.RoomState">
+        UPDATE ROOM_STATE
+        SET VIDEO_ID = #{videoId},
+            POS_SEC  = #{positionSec},
+            PLAYING  = #{playing},
+            HOST_NAME= #{hostName}
+        WHERE ROOM_ID = #{roomId}
+    </update>
+
+</mapper>

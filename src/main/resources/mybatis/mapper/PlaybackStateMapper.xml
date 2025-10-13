@@ -1,0 +1,36 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.free.sync.dao.PlaybackStateDAO">
+
+  <resultMap id="PbMap" type="com.study.free.sync.vo.PlaybackStateVO">
+    <id     column="ROOM_ID"      property="roomId"/>
+    <result column="YT_ID"        property="ytId"/>
+    <result column="POSITION_SEC" property="positionSec"/>
+    <result column="IS_PAUSED"    property="isPaused"/>
+    <result column="UPDATED_BY"   property="updatedBy"/>
+    <result column="UPDATED_AT"   property="updatedAt"/>
+  </resultMap>
+
+  <select id="selectByRoomId" parameterType="int" resultMap="PbMap">
+    SELECT ROOM_ID, YT_ID, POSITION_SEC, IS_PAUSED, UPDATED_BY, UPDATED_AT
+      FROM PLAYBACK_STATE
+     WHERE ROOM_ID = #{roomId}
+  </select>
+
+  <insert id="upsert" parameterType="com.study.free.sync.vo.PlaybackStateVO">
+    MERGE INTO PLAYBACK_STATE t
+    USING (SELECT #{roomId} AS ROOM_ID FROM DUAL) s
+       ON (t.ROOM_ID = s.ROOM_ID)
+    WHEN MATCHED THEN UPDATE SET
+         t.YT_ID        = #{ytId},
+         t.POSITION_SEC = #{positionSec},
+         t.IS_PAUSED    = #{isPaused},
+         t.UPDATED_BY   = #{updatedBy},
+         t.UPDATED_AT   = SYSTIMESTAMP
+    WHEN NOT MATCHED THEN INSERT
+         (ROOM_ID, YT_ID, POSITION_SEC, IS_PAUSED, UPDATED_BY, UPDATED_AT)
+         VALUES
+         (#{roomId}, #{ytId}, #{positionSec}, #{isPaused}, #{updatedBy}, SYSTIMESTAMP)
+  </insert>
+
+</mapper>

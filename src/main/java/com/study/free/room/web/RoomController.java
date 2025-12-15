@@ -21,7 +21,7 @@ public class RoomController {
     private final RoomService roomService;
 
     @Autowired
-    private RoomDAO roomDAO; //  추가
+    private RoomDAO roomDAO; // 추가
 
     @Autowired
     public RoomController(RoomService roomService) {
@@ -29,7 +29,7 @@ public class RoomController {
     }
 
     // 목록
-    @GetMapping({"", "/", "/list"})
+    @GetMapping({ "", "/", "/list" })
     public String list(Model model) {
         List<RoomVO> rooms = roomService.listRooms();
         model.addAttribute("rooms", rooms);
@@ -53,7 +53,7 @@ public class RoomController {
 
         // 입력 정리
         String title = safe(form.getTitle());
-        String ytUrl = safe(form.getYtUrl());  // ★ 추가: ytUrl도 정리
+        String ytUrl = safe(form.getYtUrl()); // 추가: ytUrl도 정리
         if (title.isEmpty()) {
             model.addAttribute("error", "제목은 필수입니다.");
             form.setTitle(title);
@@ -61,7 +61,7 @@ public class RoomController {
             model.addAttribute("form", form);
             return "rooms/roomcreate";
         }
-        if (ytUrl.isEmpty()) {                 // ★ 추가: ytUrl 필수 체크
+        if (ytUrl.isEmpty()) { // 추가: ytUrl 필수 체크
             model.addAttribute("error", "유튜브 링크는 필수입니다.");
             form.setTitle(title);
             form.setYtUrl(ytUrl);
@@ -85,7 +85,7 @@ public class RoomController {
         try {
             // 2) 생성 (DB 유니크 경합 대비하여 try-catch)
             Integer roomId = roomService.createRoomWithInit(
-                loginMemberId, title, maxMember, ytUrl   // ★ ytUrl 사용
+                    loginMemberId, title, maxMember, ytUrl // ytUrl 사용
             );
             return "redirect:/sync/page?room=" + roomId + "&role=host&name=" + loginMemberId;
 
@@ -98,45 +98,50 @@ public class RoomController {
     }
 
     // 실시간 제목 중복 체크 (AJAX)
-    @GetMapping(value="/check-title", produces="application/json;charset=UTF-8")
+    @GetMapping(value = "/check-title", produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public java.util.Map<String, Object> checkTitle(@RequestParam(required=false) String title){
+    public java.util.Map<String, Object> checkTitle(@RequestParam(required = false) String title) {
         String t = safe(title);
         boolean ok = (!t.isEmpty() && roomDAO.countByTitle(t) == 0);
         return java.util.Map.of("ok", ok);
     }
 
-    @PostMapping(value="/close/{roomId}", produces="application/json;charset=UTF-8")
+    @PostMapping(value = "/close/{roomId}", produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public String close(@PathVariable Integer roomId, HttpSession session){
+    public String close(@PathVariable Integer roomId, HttpSession session) {
         String loginMemberId = getLoginMemberId(session);
-        if (loginMemberId == null) return "{\"ok\":false,\"msg\":\"로그인이 필요합니다.\"}";
+        if (loginMemberId == null)
+            return "{\"ok\":false,\"msg\":\"로그인이 필요합니다.\"}";
         roomService.closeRoomByHost(roomId, loginMemberId);
         return "{\"ok\":true}";
     }
 
-    @PostMapping(value="/open/{roomId}", produces="application/json;charset=UTF-8")
+    @PostMapping(value = "/open/{roomId}", produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public String open(@PathVariable Integer roomId, HttpSession session){
+    public String open(@PathVariable Integer roomId, HttpSession session) {
         String loginMemberId = getLoginMemberId(session);
-        if (loginMemberId == null) return "{\"ok\":false,\"msg\":\"로그인이 필요합니다.\"}";
+        if (loginMemberId == null)
+            return "{\"ok\":false,\"msg\":\"로그인이 필요합니다.\"}";
         roomService.openRoomByHost(roomId, loginMemberId);
         return "{\"ok\":true}";
     }
 
     private String getLoginMemberId(HttpSession session) {
         Object v = session.getAttribute("loginMemberId");
-        if (v != null) return v.toString();
+        if (v != null)
+            return v.toString();
         // 기존 세션 모델이 login 객체라면 memId 리플렉션으로 보정
         Object login = session.getAttribute("login");
         if (login != null) {
-            try { return (String) login.getClass().getMethod("getMemId").invoke(login); }
-            catch (Exception ignored) {}
+            try {
+                return (String) login.getClass().getMethod("getMemId").invoke(login);
+            } catch (Exception ignored) {
+            }
         }
         return null;
     }
 
-    private String safe(String s){
+    private String safe(String s) {
         return (s == null) ? "" : s.trim();
     }
 }

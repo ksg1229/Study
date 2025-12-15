@@ -19,8 +19,8 @@ public class SyncHandler extends TextWebSocketHandler {
     // ====== 기존 필드 ======
     private final Map<String, Set<WebSocketSession>> rooms = new ConcurrentHashMap<>();
     private final ObjectMapper om = new ObjectMapper();
-    
-    private final PlaybackStateDAO playbackDao; // ★ 추가
+
+    private final PlaybackStateDAO playbackDao; // 추가
 
     public SyncHandler(PlaybackStateDAO playbackDao) {
         this.playbackDao = playbackDao;
@@ -28,8 +28,7 @@ public class SyncHandler extends TextWebSocketHandler {
 
     // 허용 kind (이미지/그림/권한 포함)
     private static final Set<String> ALLOW = new HashSet<>(
-            Arrays.asList("ctrl","tick","chat","draw","perm","admin")
-    );
+            Arrays.asList("ctrl", "tick", "chat", "draw", "perm", "admin"));
 
     // ====== 방 상태(영상/재생/화이트보드) 저장소 ======
     private final Map<String, RoomState> states = new ConcurrentHashMap<>();
@@ -37,61 +36,88 @@ public class SyncHandler extends TextWebSocketHandler {
 
     // ====== 내부 상태 클래스 (메모리 유지) ======
     private static class RoomState {
-    	volatile String videoId = null; 
+        volatile String videoId = null;
         volatile double positionSec = 0;
         volatile boolean playing = false;
         volatile long lastUpdateMillis = System.currentTimeMillis();
         volatile boolean wbOpen = false;
-        volatile boolean seeded = false; 
-        
-        synchronized void seed(String vid, int pos, boolean playing){
-            if (vid == null || vid.isEmpty()) return;
-            videoId = vid; positionSec = Math.max(0, pos);
+        volatile boolean seeded = false;
+
+        synchronized void seed(String vid, int pos, boolean playing) {
+            if (vid == null || vid.isEmpty())
+                return;
+            videoId = vid;
+            positionSec = Math.max(0, pos);
             this.playing = playing;
             lastUpdateMillis = System.currentTimeMillis();
             seeded = true;
         }
 
-        synchronized void load(String vid){
-            if (vid == null || vid.isEmpty()) return;
-            videoId = vid; positionSec = 0; playing = false;
+        synchronized void load(String vid) {
+            if (vid == null || vid.isEmpty())
+                return;
+            videoId = vid;
+            positionSec = 0;
+            playing = false;
             lastUpdateMillis = System.currentTimeMillis();
         }
-        synchronized void playAt(double at){
-            positionSec = at; playing = true;
+
+        synchronized void playAt(double at) {
+            positionSec = at;
+            playing = true;
             lastUpdateMillis = System.currentTimeMillis();
         }
-        synchronized void pauseAt(double at){
-            positionSec = at; playing = false;
+
+        synchronized void pauseAt(double at) {
+            positionSec = at;
+            playing = false;
             lastUpdateMillis = System.currentTimeMillis();
         }
-        synchronized void seekTo(double to){
+
+        synchronized void seekTo(double to) {
             positionSec = to;
             lastUpdateMillis = System.currentTimeMillis();
         }
-        synchronized void tick(double at){
-            positionSec = at; playing = true;
+
+        synchronized void tick(double at) {
+            positionSec = at;
+            playing = true;
             lastUpdateMillis = System.currentTimeMillis();
         }
-        synchronized void setWbOpen(boolean open){ wbOpen = open; }
 
-        synchronized double currentPosition(){
-            if (!playing) return positionSec;
+        synchronized void setWbOpen(boolean open) {
+            wbOpen = open;
+        }
+
+        synchronized double currentPosition() {
+            if (!playing)
+                return positionSec;
             long now = System.currentTimeMillis();
             double delta = (now - lastUpdateMillis) / 1000.0;
             return Math.max(0, positionSec + delta);
         }
-        synchronized Snapshot snapshot(){
+
+        synchronized Snapshot snapshot() {
             return new Snapshot(videoId, Math.floor(currentPosition()), playing, wbOpen);
         }
-        synchronized void freeze(){ // 호스트 이탈 시 위치 고정 + 정지
-            positionSec = currentPosition(); playing = false;
+
+        synchronized void freeze() { // 호스트 이탈 시 위치 고정 + 정지
+            positionSec = currentPosition();
+            playing = false;
             lastUpdateMillis = System.currentTimeMillis();
         }
+
         static class Snapshot {
-            final String id; final double at; final boolean playing; final boolean wbOpen;
-            Snapshot(String id, double at, boolean playing, boolean wbOpen){
-                this.id=id; this.at=at; this.playing=playing; this.wbOpen=wbOpen;
+            final String id;
+            final double at;
+            final boolean playing;
+            final boolean wbOpen;
+
+            Snapshot(String id, double at, boolean playing, boolean wbOpen) {
+                this.id = id;
+                this.at = at;
+                this.playing = playing;
+                this.wbOpen = wbOpen;
             }
         }
     }
@@ -101,7 +127,7 @@ public class SyncHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession s) {
         // 세션 속성에서 room 번호와 role(사용자 역할: host/member 등)을 꺼냄
         String room = (String) s.getAttributes().get("room");
-        String role = String.valueOf(s.getAttributes().get("role")); 
+        String role = String.valueOf(s.getAttributes().get("role"));
         // rooms 맵에 해당 room이 없으면 새로 생성하고, 세션을 추가
         // 방 번호별로 접속한 세션(WebSocket 연결)들을 관리
         rooms.computeIfAbsent(room, k -> ConcurrentHashMap.newKeySet()).add(s);
@@ -120,17 +146,17 @@ public class SyncHandler extends TextWebSocketHandler {
                     boolean playing = "N".equalsIgnoreCase(pb.getIsPaused());
                     // RoomState에 유튜브 ID, 위치(초), 재생여부를 초기화(seed)
                     st.seed(
-                        pb.getYtId(), 
-                        Optional.ofNullable(pb.getPositionSec()).orElse(0), 
-                        playing
-                    );
+                            pb.getYtId(),
+                            Optional.ofNullable(pb.getPositionSec()).orElse(0),
+                            playing);
                 }
             } catch (Exception ignore) {
                 // roomId 변환 실패나 DB 조회 오류 발생 시 무시
             }
         }
         // 접속자가 host라면 hostOnline 집합에 추가 (호스트 온라인 표시)
-        if ("host".equals(role)) hostOnline.add(room);
+        if ("host".equals(role))
+            hostOnline.add(room);
         // 접속 로그 출력
         log(s, "OPEN room=" + room + " role=" + role);
     }
@@ -147,14 +173,16 @@ public class SyncHandler extends TextWebSocketHandler {
 
         // kind 판별
         String kind = null;
-        JsonNode root = null; // CHANGE: 한 번만 파싱
+        JsonNode root = null; // 변경: 한 번만 파싱
         try {
             root = om.readTree(payload);
             JsonNode k = root.get("kind");
-            if (k != null && k.isTextual()) kind = k.asText();
-        } catch (Exception ignore) {}
+            if (k != null && k.isTextual())
+                kind = k.asText();
+        } catch (Exception ignore) {
+        }
 
-        // ======  방 상태 갱신 및 스냅샷 응답 ======
+        // ====== 방 상태 갱신 및 스냅샷 응답 ======
         RoomState st = states.computeIfAbsent(room, k -> new RoomState());
 
         if ("admin".equals(kind)) {
@@ -164,7 +192,8 @@ public class SyncHandler extends TextWebSocketHandler {
                 Map<String, Object> resp = new HashMap<>();
                 resp.put("kind", "ctrl");
                 resp.put("type", "SNAPSHOT");
-                if (snap.id != null && !snap.id.isEmpty()) resp.put("id", snap.id); // ★
+                if (snap.id != null && !snap.id.isEmpty())
+                    resp.put("id", snap.id);
                 resp.put("at", snap.at);
                 resp.put("playing", snap.playing);
                 resp.put("wbOpen", snap.wbOpen);
@@ -213,7 +242,8 @@ public class SyncHandler extends TextWebSocketHandler {
         }
 
         // 허용 목록 외 -> 그대로 브로드캐스트(기존 동작 유지)
-        // if (kind != null && !ALLOW.contains(kind)) { log(s, "BLOCK kind=" + kind); return; }
+        // if (kind != null && !ALLOW.contains(kind)) { log(s, "BLOCK kind=" + kind);
+        // return; }
         broadcast(room, s, payload);
     }
 
@@ -221,8 +251,10 @@ public class SyncHandler extends TextWebSocketHandler {
         Set<WebSocketSession> set = rooms.getOrDefault(room, Collections.emptySet());
         for (WebSocketSession x : set) {
             if (x.isOpen() && x != sender) {
-                try { x.sendMessage(new TextMessage(json)); }
-                catch (Exception e) { /* 무시하고 계속 */ }
+                try {
+                    x.sendMessage(new TextMessage(json));
+                } catch (Exception e) {
+                    /* 무시하고 계속 */ }
             }
         }
     }
@@ -230,22 +262,27 @@ public class SyncHandler extends TextWebSocketHandler {
     // 단일 전송 헬퍼
     private void send(WebSocketSession s, String json) {
         if (s != null && s.isOpen()) {
-            try { s.sendMessage(new TextMessage(json)); } catch (Exception ignore) {}
+            try {
+                s.sendMessage(new TextMessage(json));
+            } catch (Exception ignore) {
+            }
         }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession s, CloseStatus st) {
         String room = (String) s.getAttributes().get("room");
-        String role = String.valueOf(s.getAttributes().get("role")); // ★ ADD
+        String role = String.valueOf(s.getAttributes().get("role")); // 추가
         Set<WebSocketSession> set = rooms.get(room);
-        if (set != null) set.remove(s);
+        if (set != null)
+            set.remove(s);
 
         // 호스트가 나가면 상태 고정 + 재생 정지, 상태는 유지(새 입장자에게 계속 제공)
         if ("host".equals(role)) {
             hostOnline.remove(room);
             RoomState rs = states.get(room);
-            if (rs != null) rs.freeze();
+            if (rs != null)
+                rs.freeze();
         }
         log(s, "CLOSE " + st + " role=" + role);
     }
@@ -253,20 +290,28 @@ public class SyncHandler extends TextWebSocketHandler {
     private void log(WebSocketSession s, String m) {
         String room = String.valueOf(s.getAttributes().get("room"));
         String name = String.valueOf(s.getAttributes().get("name"));
-        System.out.println("[SyncHandler]["+room+"]["+name+"] " + m);
+        System.out.println("[SyncHandler][" + room + "][" + name + "] " + m);
     }
 
     // ====== JSON 편의 메서드 ======
-    private static String text(JsonNode n, String k){
-        if (n==null) return null; JsonNode v=n.get(k);
-        return (v!=null && v.isTextual()) ? v.asText() : null;
+    private static String text(JsonNode n, String k) {
+        if (n == null)
+            return null;
+        JsonNode v = n.get(k);
+        return (v != null && v.isTextual()) ? v.asText() : null;
     }
-    private static double num(JsonNode n, String k, double def){
-        if (n==null) return def; JsonNode v=n.get(k);
-        return (v!=null && v.isNumber()) ? v.asDouble() : def;
+
+    private static double num(JsonNode n, String k, double def) {
+        if (n == null)
+            return def;
+        JsonNode v = n.get(k);
+        return (v != null && v.isNumber()) ? v.asDouble() : def;
     }
-    private static boolean bool(JsonNode n, String k, boolean def){
-        if (n==null) return def; JsonNode v=n.get(k);
-        return (v!=null && v.isBoolean()) ? v.asBoolean() : def;
+
+    private static boolean bool(JsonNode n, String k, boolean def) {
+        if (n == null)
+            return def;
+        JsonNode v = n.get(k);
+        return (v != null && v.isBoolean()) ? v.asBoolean() : def;
     }
 }

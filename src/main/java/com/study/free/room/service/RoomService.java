@@ -20,8 +20,8 @@ public class RoomService {
     private final PlaybackStateDAO playbackStateDao;
 
     public RoomService(RoomDAO roomDao,
-                       RoomMemberDAO roomMemberDao,
-                       PlaybackStateDAO playbackStateDao) {
+            RoomMemberDAO roomMemberDao,
+            PlaybackStateDAO playbackStateDao) {
         this.roomDao = roomDao;
         this.roomMemberDao = roomMemberDao;
         this.playbackStateDao = playbackStateDao;
@@ -33,7 +33,7 @@ public class RoomService {
         RoomCreateAggVO agg = new RoomCreateAggVO();
         agg.setHostMemberId(hostMemberId);
         agg.setTitle(title);
-        agg.setMaxMember(6); // ★ 항상 6으로 고정
+        agg.setMaxMember(6); // 항상 6으로 고정
         agg.setYtId(extractYoutubeId(ytUrl));
         roomDao.createAll(agg); // ROOM + ROOM_MEMBER(HOST) + PLAYBACK_STATE
         return agg.getRoomId();
@@ -41,11 +41,11 @@ public class RoomService {
 
     /** B. 인원 6 고정 + 생성 (Form 버전) */
     @Transactional
-    public Integer createRoomWithVideo(RoomCreateVO form, String hostMemberId){
+    public Integer createRoomWithVideo(RoomCreateVO form, String hostMemberId) {
         RoomCreateAggVO agg = new RoomCreateAggVO();
         agg.setHostMemberId(hostMemberId);
         agg.setTitle(form.getTitle());
-        agg.setMaxMember(6); // ★ 항상 6으로 고정
+        agg.setMaxMember(6); // 항상 6으로 고정
         agg.setYtId(extractYoutubeId(form.getYoutubeUrl()));
         roomDao.createAll(agg);
         return agg.getRoomId();
@@ -58,23 +58,28 @@ public class RoomService {
 
     // 유튜브 ID 파싱
     private String extractYoutubeId(String url) {
-        if (url == null) return null;
+        if (url == null)
+            return null;
         int p = url.indexOf("youtu.be/");
         if (p >= 0) {
             String t = url.substring(p + "youtu.be/".length());
-            int q = t.indexOf('?'); return q >= 0 ? t.substring(0, q) : t;
+            int q = t.indexOf('?');
+            return q >= 0 ? t.substring(0, q) : t;
         }
         p = url.indexOf("v=");
         if (p >= 0) {
             String t = url.substring(p + 2);
-            int q = t.indexOf('&'); return q >= 0 ? t.substring(0, q) : t;
+            int q = t.indexOf('&');
+            return q >= 0 ? t.substring(0, q) : t;
         }
         p = url.indexOf("/embed/");
         if (p >= 0) {
             String t = url.substring(p + "/embed/".length());
-            int q = t.indexOf('?'); return q >= 0 ? t.substring(0, q) : t;
+            int q = t.indexOf('?');
+            return q >= 0 ? t.substring(0, q) : t;
         }
-        if (url.length() == 11) return url;
+        if (url.length() == 11)
+            return url;
         return null;
     }
 
@@ -107,9 +112,9 @@ public class RoomService {
             roomDao.updateStatus(vo);
         }
     }
-    
+
     @Transactional
-    public void closeRoomByHost(Integer roomId, String hostMemberId){
+    public void closeRoomByHost(Integer roomId, String hostMemberId) {
         // 호스트 검증
         String hostId = roomDao.findHostMemberId(roomId);
         if (hostId == null || !hostId.equals(hostMemberId)) {
@@ -121,9 +126,9 @@ public class RoomService {
         vo.setStatus("CLOSE");
         roomDao.updateStatus(vo);
     }
-    
+
     @Transactional
-    public void openRoomByHost(Integer roomId, String hostMemberId){
+    public void openRoomByHost(Integer roomId, String hostMemberId) {
         String hostId = roomDao.findHostMemberId(roomId);
         if (hostId == null || !hostId.equals(hostMemberId)) {
             throw new IllegalStateException("호스트만 방을 재오픈할 수 있습니다.");
@@ -133,9 +138,9 @@ public class RoomService {
         vo.setStatus("OPEN");
         roomDao.updateStatus(vo);
     }
-    
+
     @Transactional
-    public List<RoomVO> getRoomsByHost(String hostMemberId){
+    public List<RoomVO> getRoomsByHost(String hostMemberId) {
         return roomDao.selectByHost(hostMemberId);
     }
 }

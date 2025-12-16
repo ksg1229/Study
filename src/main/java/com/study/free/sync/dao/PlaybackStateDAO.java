@@ -7,5 +7,6 @@ import com.study.free.sync.vo.PlaybackStateVO;
 @Mapper
 public interface PlaybackStateDAO {
     PlaybackStateVO selectByRoomId(Integer roomId);
-    int upsert(PlaybackStateVO vo);  // ★ insert/update 대신 upsert 하나
+
+    int upsert(PlaybackStateVO vo); // insert/update 대신 upsert 하나
 }

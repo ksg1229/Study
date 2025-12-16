@@ -20,14 +20,14 @@
        AND DEL_YN = 'N'
   </select>
 
-  <!-- 🔹 단건 조회(삭제 권한 비교용) -->
+  <!-- 단건 조회(삭제 권한 비교용) -->
   <select id="selectOne" parameterType="java.math.BigDecimal" resultMap="CommentMap">
     SELECT COMMENT_ID, POST_ID, AUTHOR_ID, PARENT_ID, CONTENT, DEL_YN, CREATED_AT, UPDATED_AT
       FROM POST_COMMENT
      WHERE COMMENT_ID = #{commentId}
   </select>
 
-  <!-- 🔹 11g ROWNUM 페이징: 정렬(스레드 순) 후 ROW_NUMBER 매겨서 범위 자르기 -->
+  <!-- 11g ROWNUM 페이징: 정렬(스레드 순) 후 ROW_NUMBER 매겨서 범위 자르기 -->
   <select id="selectByPostIdPaged"
           parameterType="com.study.free.community.vo.CommentPageQueryVO"
           resultMap="CommentMap">

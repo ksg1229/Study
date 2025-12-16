@@ -8,7 +8,7 @@
       <meta name="viewport" content="width=device-width,initial-scale=1" />
       <title>스터디 세션</title>
       <jsp:include page="/WEB-INF/inc/top.jsp" />
-      <!-- ★ top.jsp에 jQuery가 없다면 주석 해제
+      <!-- top.jsp에 jQuery가 없다면 주석 해제
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 -->
     </head>
@@ -58,7 +58,7 @@
                 <button id="wbClear" class="hostOnly">화이트보드 지우기</button>
               </div>
             </div>
-            <!-- ❌ 이미지 공유 카드 삭제 완료 -->
+            <!-- 이미지 공유 카드 삭제 완료 -->
           </section>
 
           <!-- RIGHT -->
@@ -108,14 +108,14 @@
         if (!meId) { meId = ''; }
         if (role === 'member') document.body.classList.add('member');
 
-        //★ DB에서 내려온 재생상태(컨트롤러에서 playback 모델 주입 필요)
+        // DB에서 내려온 재생상태(컨트롤러에서 playback 모델 주입 필요)
         var INIT = {
           ytId: '<c:out value="${playback.ytId}"/>',
           pos: <c:out value="${playback.positionSec != null ? playback.positionSec : 0}" />,
           paus: '<c:out value="${playback.isPaused != null ? playback.isPaused : \'Y\'}"/>'
         };
 
-        // ★ API 베이스 URL
+        // API 베이스 URL
         var ROOM_ID = parseInt(room, 10) || 0;
         var API_BASE = ctx + '/api/rooms/' + ROOM_ID;
 
@@ -129,7 +129,7 @@
         // ===== YouTube =====
         (function () { var s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(s); })();
         var player = null, tickTimer = null;
-        // ★ currentVid/초기 재생상태를 DB 값으로
+        // currentVid/초기 재생상태를 DB 값으로
         var currentVid = (INIT.ytId && INIT.ytId.length ? INIT.ytId : 'dQw4w9WgXcQ');
         var INIT_POS = INIT.pos || 0;
         var INIT_PAUS = INIT.paus || 'Y'; // 'Y'|'N'
@@ -140,7 +140,7 @@
           player = new YT.Player('player', { videoId: currentVid, playerVars: pv, events: { onReady: onReady, onStateChange: onState } });
         };
 
-        // ★ 재생상태 DB 저장(1초 쓰로틀)
+        // 재생상태 DB 저장(1초 쓰로틀)
         function savePlaybackToDB(data) {
           data = Object.assign({ ytId: currentVid }, data); // 항상 영상ID 포함
           if (!ROOM_ID || !window.$) return;
@@ -172,7 +172,7 @@
           refreshMessages();
           toggleWBButton();
 
-          // ★ 호스트만 DB 초기 상태 반영
+          // 호스트만 DB 초기 상태 반영
           if (role === 'host') {
             try {
               if (INIT_POS > 0) player.seekTo(INIT_POS, true);
@@ -180,7 +180,7 @@
             } catch (e) { }
           }
 
-          // ★ 멤버만 폴링 보정 시작 (WS가 열려있으면 폴링은 자동으로 쉬게 설계함)
+          // 멤버만 폴링 보정 시작 (WS가 열려있으면 폴링은 자동으로 쉬게 설계함)
           if (window.$ && role === 'member') {
             startMemberPolling();
           }
@@ -192,13 +192,13 @@
           var cur = Math.floor(player.getCurrentTime() || 0);
           if (e.data === YT.PlayerState.PLAYING) {
             send({ kind: 'ctrl', type: 'PLAY', at: cur, id: currentVid });
-            // ★ DB 반영
+            // DB 반영
             savePlaybackToDB({ positionSec: cur, isPaused: 'N' });
             if (!tickTimer) { tickTimer = setInterval(() => { try { send({ kind: 'tick', at: Math.floor(player.getCurrentTime() || 0), id: currentVid }); } catch (_) { } }, 2000); }
           }
           if (e.data === YT.PlayerState.PAUSED) {
             send({ kind: 'ctrl', type: 'PAUSE', at: cur, id: currentVid });
-            // ★ DB 반영
+            // DB 반영
             savePlaybackToDB({ positionSec: cur, isPaused: 'Y' });
             if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
           }
@@ -242,7 +242,7 @@
             if (!id) return alert('유효한 YouTube 링크가 아닙니다.');
             currentVid = id; player.loadVideoById(id);
             send({ kind: 'ctrl', type: 'LOAD', id: id });
-            // ★ DB 반영 (영상 교체 시 위치 0, 일시정지)
+            // DB 반영 (영상 교체 시 위치 0, 일시정지)
             savePlaybackToDB({ ytId: id, positionSec: 0, isPaused: 'Y' });
           };
           g('wbToggle').onclick = function () {
@@ -325,7 +325,7 @@
           var t = Math.max(0, (player ? player.getCurrentTime() : 0) + d);
           player.seekTo(t, true);
           send({ kind: 'ctrl', type: 'SEEK', to: Math.floor(t), id: currentVid });
-          // ★ DB 반영(재생/일시정지 상태는 그대로 유지)
+          // DB 반영(재생/일시정지 상태는 그대로 유지)
           savePlaybackToDB({ positionSec: Math.floor(t) });
         }
 
@@ -550,7 +550,7 @@
           }
         }
 
-        /* ★ DB 메시지 로딩/렌더 */
+        /* DB 메시지 로딩/렌더 */
         function refreshMessages() {
           if (!window.$) return;
           $.getJSON(API_BASE + '/messages', function (list) {
@@ -726,7 +726,7 @@
           wb.canvas.height = Math.round(rect.height * dpr);
 
           wb.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);   // 논리좌표 = CSS 픽셀
-          hardClearCanvas();                      // 🔑 버퍼 전체 초기화
+          hardClearCanvas();                      // 버퍼 전체 초기화
           redrawWB();
         }
 
@@ -741,7 +741,7 @@
         function hardClearCanvas() {
           const c = wb.canvas, ctx = wb.ctx;
           ctx.save();
-          ctx.setTransform(1, 0, 0, 1, 0, 0);          // 🔑 변환 초기화(픽셀 좌표)
+          ctx.setTransform(1, 0, 0, 1, 0, 0);          // 변환 초기화(픽셀 좌표)
           ctx.clearRect(0, 0, c.width, c.height);    // 버퍼 전체 지우기
           ctx.restore();
         }

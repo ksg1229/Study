@@ -10,8 +10,12 @@ import com.study.free.community.vo.CommentPageQueryVO;
 @Mapper
 public interface PostCommentDAO {
     int countByPostId(BigDecimal postId);
+
     List<PostCommentVO> selectByPostIdPaged(CommentPageQueryVO q); // 11g ROWNUM
-    PostCommentVO selectOne(BigDecimal commentId);                  // 🔹 단건 조회(작성자 확인)
+
+    PostCommentVO selectOne(BigDecimal commentId); // 단건 조회(작성자 확인)
+
     int insert(CreateCommentVO vo);
+
     int softDelete(BigDecimal commentId);
 }

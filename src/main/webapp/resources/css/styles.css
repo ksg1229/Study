@@ -562,7 +562,7 @@ body.theme-dark .community-write-page select optgroup { background-color:#0f1737
   .imgModal__toolbar button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:6px 10px;cursor:pointer}
   .imgModal__toolbar span{min-width:52px;text-align:center}
 
-  /* ★ 새로 추가: 스테이지(여기에 transform 적용) */
+  /* 새로 추가: 스테이지(여기에 transform 적용) */
   #imgStage{
     display:inline-block;
     will-change: transform;

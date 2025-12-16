@@ -27,8 +27,8 @@ public class CommunityController {
         this.postService = postService;
         this.commentService = commentService;
     }
-    
-    @GetMapping({"/", "/list"})
+
+    @GetMapping({ "/", "/list" })
     public String list(Model model) {
         model.addAttribute("posts", postService.list()); // 기존 서비스 메서드 사용
         return "community/list"; // /WEB-INF/views/community/list.jsp
@@ -37,10 +37,10 @@ public class CommunityController {
     // 상세 (조회수 +1, 댓글 목록 페이징)
     @GetMapping("/view/{id}")
     public String view(@PathVariable("id") BigDecimal id,
-                       @RequestParam(name="page", defaultValue="1") int page,
-                       @RequestParam(name="size", defaultValue="10") int size,
-                       HttpSession session,
-                       Model model) {
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            HttpSession session,
+            Model model) {
 
         Object v = session.getAttribute("loginMemberId");
         String loginMemberId = v == null ? null : v.toString();
@@ -63,7 +63,7 @@ public class CommunityController {
     // 댓글 작성
     @PostMapping("/comments")
     public String writeComment(@ModelAttribute CreateCommentVO form, HttpSession session,
-                               @RequestParam(name="page", defaultValue="1") int page) {
+            @RequestParam(name = "page", defaultValue = "1") int page) {
         Object v = session.getAttribute("loginMemberId");
         String loginId = v == null ? null : v.toString();
         form.setAuthorId(loginId);
@@ -80,16 +80,16 @@ public class CommunityController {
     // 댓글 삭제 (권한 비교: 작성자 또는 관리자만)
     @PostMapping("/comments/{commentId}/delete")
     public String deleteComment(@PathVariable("commentId") BigDecimal commentId,
-                                @RequestParam("postId") BigDecimal postId,
-                                @RequestParam(name="page", defaultValue="1") int page,
-                                HttpSession session) {
+            @RequestParam("postId") BigDecimal postId,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            HttpSession session) {
 
         String loginId = (String) session.getAttribute("loginMemberId");
         if (loginId == null || loginId.isEmpty()) {
             return "redirect:/login"; // 프로젝트 로그인 경로에 맞춰 변경
         }
 
-        // 🔒 본인만 삭제: 작성자 비교
+        // 본인만 삭제: 작성자 비교
         PostCommentVO target = commentService.findOne(commentId);
         if (target != null && loginId.equals(target.getAuthorId())) {
             commentService.softDelete(commentId);
@@ -97,22 +97,24 @@ public class CommunityController {
         // 작성자 아니면 아무 일도 하지 않고 원래 페이지로 리다이렉트
         return "redirect:/community/view/" + postId + "?page=" + page;
     }
-    
+
     private String getLoginId(HttpSession session) {
         Object v = session.getAttribute("loginMemberId"); // ← 여기 키 이름이 포인트
         return v == null ? null : v.toString();
     }
-    
+
     @GetMapping("/write")
     public String writeForm(HttpSession session) {
-        if (getLoginId(session) == null) return "redirect:/loginView?redirect=/community/write";
+        if (getLoginId(session) == null)
+            return "redirect:/loginView?redirect=/community/write";
         return "community/write";
     }
 
     @PostMapping("/writeDo")
     public String writeDo(@ModelAttribute CommunityPostVO vo, HttpSession session, Model model) {
         String authorId = getLoginId(session);
-        if (authorId == null) return "redirect:/loginView?redirect=/community/write";
+        if (authorId == null)
+            return "redirect:/loginView?redirect=/community/write";
 
         if (vo.getTitle() == null || vo.getTitle().trim().isEmpty() || vo.getTitle().length() > 300) {
             model.addAttribute("error", "제목은 1~300자로 입력하세요.");
@@ -131,18 +133,21 @@ public class CommunityController {
         BigDecimal newId = postService.write(vo);
         return "redirect:/community/view/" + newId.toPlainString();
     }
-    
+
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable("id") BigDecimal id, HttpSession session, Model model) {
         String loginId = getLoginId(session);
-        if (loginId == null) return "redirect:/loginView?redirect=/community/edit/" + id.toPlainString();
+        if (loginId == null)
+            return "redirect:/loginView?redirect=/community/edit/" + id.toPlainString();
 
         CommunityPostVO post = postService.findOne(id);
-        if (post == null || "Y".equals(post.getDelYn())) return "redirect:/community/list";
+        if (post == null || "Y".equals(post.getDelYn()))
+            return "redirect:/community/list";
 
         Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
         boolean canEdit = loginId.equals(post.getAuthorId()) || (isAdmin != null && isAdmin);
-        if (!canEdit) return "redirect:/community/view/" + id.toPlainString();
+        if (!canEdit)
+            return "redirect:/community/view/" + id.toPlainString();
 
         model.addAttribute("post", post);
         return "community/edit";
@@ -151,7 +156,8 @@ public class CommunityController {
     @PostMapping("/editDo")
     public String editDo(@ModelAttribute CommunityPostVO vo, HttpSession session, Model model) {
         String loginId = getLoginId(session);
-        if (loginId == null) return "redirect:/loginView?redirect=/community/list";
+        if (loginId == null)
+            return "redirect:/loginView?redirect=/community/list";
 
         // 원본 조회
         CommunityPostVO origin = postService.findOne(vo.getPostId());
@@ -160,7 +166,8 @@ public class CommunityController {
 
         Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
         boolean canEdit = loginId.equals(origin.getAuthorId()) || (isAdmin != null && isAdmin);
-        if (!canEdit) return "redirect:/community/view/" + vo.getPostId().toPlainString();
+        if (!canEdit)
+            return "redirect:/community/view/" + vo.getPostId().toPlainString();
 
         // 간단 검증
         if (vo.getTitle() == null || vo.getTitle().trim().isEmpty() || vo.getTitle().length() > 300) {
@@ -187,14 +194,17 @@ public class CommunityController {
     @PostMapping("/delete/{id}")
     public String deletePost(@PathVariable("id") BigDecimal id, HttpSession session) {
         String loginId = getLoginId(session);
-        if (loginId == null) return "redirect:/loginView?redirect=/community/view/" + id.toPlainString();
+        if (loginId == null)
+            return "redirect:/loginView?redirect=/community/view/" + id.toPlainString();
 
         CommunityPostVO post = postService.findOne(id);
-        if (post == null) return "redirect:/community/list";
+        if (post == null)
+            return "redirect:/community/list";
 
         Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
         boolean canDelete = loginId.equals(post.getAuthorId()) || (isAdmin != null && isAdmin);
-        if (!canDelete) return "redirect:/community/view/" + id.toPlainString();
+        if (!canDelete)
+            return "redirect:/community/view/" + id.toPlainString();
 
         postService.softDelete(id);
         return "redirect:/community/list";

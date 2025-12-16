@@ -4,7 +4,7 @@
 
 StudySync는 개인 학습뿐만 아니라 실시간으로 친구들과 함께 영상을 시청하며 학습할 수 있는 환경을 제공합니다. 영상 동기화, 채팅, 화이트보드 등 다양한 도구로 마치 한 공간에 있는 듯한 학습 경험을 선사합니다.
 
-## 1 주요 기능
+## 1. 주요 기능
 
 *   **📺 실시간 영상 동기화 (Watch Together)**
     *   YouTube 영상을 호스트의 제어(재생, 일시정지, 탐색)에 맞춰 모든 참여자가 동시에 시청할 수 있습니다.
@@ -18,7 +18,7 @@ StudySync는 개인 학습뿐만 아니라 실시간으로 친구들과 함께 �
     *   추천 강의 및 스터디 세션 탐색
     *   공지사항 및 게시판 기능
 
-## 2 기술 스택 (Tech Stack)
+## 2. 기술 스택 (Tech Stack)
 
 ### Backend
 *   **Language**: Java 8
@@ -32,7 +32,7 @@ StudySync는 개인 학습뿐만 아니라 실시간으로 친구들과 함께 �
 *   **Styling**: Custom CSS (Responsive)
 *   **Client Logic**: JavaScript (WebSocket handling, YouTube IFrame API)
 
-## 3 설치 및 실행
+## 3. 설치 및 실행
 
 1.  프로젝트 클론
 2.  Maven 의존성 설치 (`mvn install`)

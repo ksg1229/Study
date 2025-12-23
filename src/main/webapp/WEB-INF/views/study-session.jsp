@@ -189,17 +189,17 @@
 
         function onState(e) {
           if (role !== 'host') return;
-          var cur = Math.floor(player.getCurrentTime() || 0);
+          var cur = player.getCurrentTime() || 0;
           if (e.data === YT.PlayerState.PLAYING) {
             send({ kind: 'ctrl', type: 'PLAY', at: cur, id: currentVid });
             // DB 반영
-            savePlaybackToDB({ positionSec: cur, isPaused: 'N' });
-            if (!tickTimer) { tickTimer = setInterval(() => { try { send({ kind: 'tick', at: Math.floor(player.getCurrentTime() || 0), id: currentVid }); } catch (_) { } }, 2000); }
+            savePlaybackToDB({ positionSec: Math.floor(cur), isPaused: 'N' });
+            if (!tickTimer) { tickTimer = setInterval(() => { try { send({ kind: 'tick', at: player.getCurrentTime() || 0, id: currentVid }); } catch (_) { } }, 2000); }
           }
           if (e.data === YT.PlayerState.PAUSED) {
             send({ kind: 'ctrl', type: 'PAUSE', at: cur, id: currentVid });
             // DB 반영
-            savePlaybackToDB({ positionSec: cur, isPaused: 'Y' });
+            savePlaybackToDB({ positionSec: Math.floor(cur), isPaused: 'Y' });
             if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
           }
         }
@@ -324,7 +324,7 @@
         function seek(d) {
           var t = Math.max(0, (player ? player.getCurrentTime() : 0) + d);
           player.seekTo(t, true);
-          send({ kind: 'ctrl', type: 'SEEK', to: Math.floor(t), id: currentVid });
+          send({ kind: 'ctrl', type: 'SEEK', to: t, id: currentVid });
           // DB 반영(재생/일시정지 상태는 그대로 유지)
           savePlaybackToDB({ positionSec: Math.floor(t) });
         }
